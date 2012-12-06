@@ -92,6 +92,7 @@ void sudoku::hidden()
   {
     row_hidden(i);
     column_hidden(i);
+    box_hidden(i);
   }
 }
 
@@ -120,11 +121,11 @@ void sudoku::column_direct(int x)
 
 void sudoku::column_hidden(int x)
 {
-  int startpos = x;
+  int start_pos = x;
   int * tally = new int[side];
   for (int i=0;i<side;++i)
     tally[i]=0;
-  for (int i=startpos;i<side*side;i+=side)
+  for (int i=start_pos;i<side*side;i+=side)
   {
     char a = '1';
     for (int j=0;j<9;++j)
@@ -134,7 +135,7 @@ void sudoku::column_hidden(int x)
       ++a;
     }
   }
-  for (int i=startpos;i<side*side;i+=side)
+  for (int i=start_pos;i<side*side;i+=side)
   {
     char a='1';
     for (int j=0;j<9;++j)
@@ -148,15 +149,16 @@ void sudoku::column_hidden(int x)
     }
   }
 
+  delete[] tally;
 }
 
 void sudoku::row_hidden(int x)
 {
-  int startpos = x*side;
+  int start_pos = x*side;
   int * tally = new int[side];
   for (int i=0;i<side;++i)
     tally[i]=0;
-  for (int i=startpos;i<startpos+side;++i)
+  for (int i=start_pos;i<start_pos+side;++i)
   {
     char a='1';
     for (int j=0;j<9;++j)
@@ -166,7 +168,7 @@ void sudoku::row_hidden(int x)
       ++a;
     }
   }
-  for (int i=startpos;i<startpos+side;++i)
+  for (int i=start_pos;i<start_pos+side;++i)
   {
     char a='1';
     for (int j=0;j<9;++j)
@@ -179,6 +181,45 @@ void sudoku::row_hidden(int x)
       ++a;
     }
   }
+  delete[] tally;
+}
+void sudoku::box_hidden(int x)
+{
+  int start_pos=(x/3)*3*side+(x%3)*3;
+  int * tally = new int[side];
+  for (int i=0;i<side;++i)
+    tally[i]=0;
+  for (int i=start_pos;i<start_pos+(3*side);i+=side)
+  {
+    for (int j=i;j<i+3;++j)
+    {
+      char a='1';
+      for (int k=0;k<9;++k)
+      {
+        if (options[j].count(a)==1)
+          ++tally[k];
+        ++a;
+      }
+    }
+  }
+  for (int i=start_pos;i<start_pos+(3*side);i+=side)
+  {
+    for (int j=i;j<i+3;++j)
+    {
+      char a='1';
+      for (int k=0;k<9;++k)
+      {
+        if (tally[k]==1 && options[j].count(a)==1)
+        {
+          options[j].clear();
+          options[j].insert(a);
+        }
+        ++a;
+      }
+    }
+  }
+  delete[] tally;
+
 }
 
 // hard coded for 9, oh well
