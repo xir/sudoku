@@ -23,27 +23,36 @@ class sudoku
     void print();
     void read();
     void solve();
+    void filled();
+    bool isSolved();
 
   private:
-    //int * row;
-    //int * col;
-    //int * box;
-    bool solved;
     int num_filled;
+    bool solved;
     int side;
     char * grid;
     std::set<char> * options;
 };
 
+bool sudoku::isSolved()
+{
+  filled();
+  return num_filled == side*side;
+}
+
+void sudoku::filled()
+{
+  num_filled=side*side;
+  for (int i=0;i<side*side;++i)
+    if (grid[i]=='0')
+      --num_filled;
+}
+
 sudoku::sudoku (int side)
 {
-  num_filled=0;
   this->side=side;
   grid = new char[side*side];
   options = new std::set<char>[side*side];
-  //row = new int[side*side];
-  //col = new int[side*side];
-  //box = new int[side*side];
 }
 
 sudoku::~sudoku()
@@ -81,7 +90,7 @@ void sudoku::hidden()
 {
   for (int i=0;i<9;++i)
   {
-    //row_hidden(i);
+    row_hidden(i);
     column_hidden(i);
   }
 }
@@ -123,14 +132,13 @@ void sudoku::column_hidden(int x)
       if (options[i].count(a)==1)
         ++tally[j];
       ++a;
-    
     }
   }
   for (int i=startpos;i<side*side;i+=side)
   {
+    char a='1';
     for (int j=0;j<9;++j)
     {
-      char a='1';
       if (tally[j]==1 && options[i].count(a)==1)
       {
         options[i].clear();
@@ -160,9 +168,9 @@ void sudoku::row_hidden(int x)
   }
   for (int i=startpos;i<startpos+side;++i)
   {
+    char a='1';
     for (int j=0;j<9;++j)
     {
-      char a='1';
       if (tally[j]==1 && options[i].count(a)==1)
       {
         options[i].clear();
@@ -199,7 +207,6 @@ void sudoku::push_options()
       it = (options[i]).begin();
       grid[i] = *it;
       options[i].clear();
-      ++num_filled;
     }
   }
 }
@@ -208,27 +215,12 @@ void sudoku::read()
 {
   delete[] grid;
   delete[] options;
-  //delete[] row;
-  //delete[] col;
-  //delete[] box;
   grid = new char[side*side];
   options = new std::set<char>[side*side];
-  //row = new int[side*side];
-  //col = new int[side*side];
-  //box = new int[side*side];
-  //for (int i=0;i<side*side;++i)
-  //{
-  //row[i] = 0;
-  //col[i] = 0;
-  //box[i] = 0;
-  //}
-  num_filled=0;
   for (int i=0;i<side*side;++i)
   {
     std::cin >> grid[i];
-    if (grid[i]!='0' && grid[i]!='.')
-      ++num_filled;
-  }          
+  }
 }
 
 void sudoku::print()
@@ -244,15 +236,19 @@ void sudoku::print()
 
 void sudoku::solve()
 {
+  filled();
   if (num_filled != side*side)
     solved = false;
+  else
+    solved = true;
   int prev=num_filled;
   while(!solved)
   {
     reduce_options();
-    push_options();
     hidden();
     push_options();
+
+    filled();
     if (prev == num_filled)
       return;
     prev=num_filled;
@@ -262,13 +258,15 @@ void sudoku::solve()
 int main()
 {
   sudoku A (SIDE);
+  int count=0;
   for (int i=1;i<=NUM_PUZZLES;++i)
   {
     A.read();
     A.pop_options();
     A.solve();
-    std::cout << i << "\n";
-    A.print();
+    if (A.isSolved())
+      ++count;
   }
+  std::cout << count << "\n";
   return 0;
 }
