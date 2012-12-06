@@ -219,7 +219,6 @@ void sudoku::box_hidden(int x)
     }
   }
   delete[] tally;
-
 }
 
 // hard coded for 9, oh well
