@@ -1,8 +1,8 @@
 #include<iostream>
 #include<set>
 
-const int SIDE = 9;
 const int NUM_PUZZLES = 50;
+const int SIDE = 9;
 
 class sudoku
 {
