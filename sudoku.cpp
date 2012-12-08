@@ -12,6 +12,7 @@ class sudoku
     void update_options();
     void reduce_options();
     void hidden();
+    void box();
     void push_options();
     void pop_options();
     void row_direct(int);
@@ -29,10 +30,12 @@ class sudoku
     void countTally(int*,int);
     void remove_from_row(int,char);
     void remove_from_col(int,char);
+    void print_options(int);
+    void print_array(int*);
 
     void countBox(int*,int);
 
-  private:
+  //private:
     int num_filled;
     bool solved;
     int side;
@@ -99,9 +102,13 @@ void sudoku::hidden()
     row_hidden(i);
     column_hidden(i);
     box_hidden(i);
-    //not working
-    //box_row(i);
   }
+}
+
+void sudoku::box()
+{
+  for (int i=0;i<side;++i)
+    box_row(i);
 }
 
 // takes an entry, removes it from the options list of that row
@@ -218,6 +225,7 @@ void sudoku::countBox(int * tally, int start_pos)
 // other two rows of that box, so remove them
 // edits options outside of its box
 void sudoku::box_row(int x)
+  // not working
 {
   int start_pos=(x/3)*3*side+(x%3)*3;
   int * tally = new int[side];
@@ -227,6 +235,7 @@ void sudoku::box_row(int x)
     tally[i]=0;
 
   countBox(tally,start_pos);
+  //print_array(tally);
 
   for (int i=start_pos;i<start_pos+(3*side);i+=side)
   {
@@ -237,15 +246,24 @@ void sudoku::box_row(int x)
     // count the row
     for (int j=i;j<i+3;++j)
       countTally(row_tally,j);
+    //print_array(row_tally);
 
     for (int j=0;j<side;++j)
     {
-      if (row_tally[j]==tally[j])
+      if (row_tally[j]==tally[j] && tally[j] > 1)
       {
         char c = '1'+j;
         int current_row = i/side;
-        for (int k=0;k<2;++k)
-          remove_from_row((current_row+k)%3,c);
+        //std::cout << j+1 << ": " << current_row << "\n";
+        for (int k=1;k<3;++k)
+        {
+          int base = (current_row/3)*3;
+          int row_t = (current_row+k)%3;
+          int row = base+row_t;
+          //std::cout << row << "\n";
+          remove_from_row(row,c);
+        }
+
       }
     }
   }
@@ -331,6 +349,9 @@ void sudoku::solve()
     reduce_options();
     hidden();
     push_options();
+    //not working
+    //box();
+    push_options();
 
     filled();
     if (prev == num_filled)
@@ -344,6 +365,25 @@ void sudoku::remove_from_row(int x, char c)
   int start_pos=x*side;
   for (int i=start_pos;i<start_pos+side;++i)
     options[i].erase(c);
+}
+
+void sudoku::print_options(int x)
+{
+  std::set<char>::iterator it=options[x].begin();
+  while (it!=options[x].end())
+  {
+    std::cout << *it << " ";
+    ++it;
+  }
+  std::cout << "\n";
+}
+
+void sudoku::print_array(int * array)
+{
+  for (int i=0;i<side;++i)
+    std::cout << array[i] << " ";
+  std::cout << "\n";
+
 }
 
 int main()
