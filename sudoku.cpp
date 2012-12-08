@@ -251,11 +251,16 @@ void sudoku::box_row(int x)
       if (row_tally[j]==tally[j] && tally[j] > 1)
       {
         char c = '1'+j;
-        int current_row = i/side;
-        for (int k=1;k<3;++k)
+        int start_pos = (i/3)*3;
+        int row = i/side;
+        //std::cout << current_row << ": " << j+1 << "\n";
+        for (int k=3;k<side;++k)
         {
-          int row = (current_row/3)*3+(current_row+k)%3;
-          remove_from_row(row,c);
+          int pos = row*side+(start_pos+k)%side;
+          options[pos].erase(c);
+
+
+          //remove_from_row(row,c);
         }
       }
     }
@@ -341,9 +346,7 @@ void sudoku::solve()
   {
     reduce_options();
     hidden();
-    push_options();
-    //not working
-    //box();
+    box();
     push_options();
 
     filled();
@@ -386,10 +389,19 @@ int main()
   for (int i=1;i<=NUM_PUZZLES;++i)
   {
     A.read();
+    A.print();
     A.pop_options();
     A.solve();
     if (A.isSolved())
       ++count;
+    else
+    {
+      //if(i==27)
+      {
+        std::cout << i << "\n";
+        A.print();
+      }
+    }
   }
   std::cout << count << "\n";
   return 0;
