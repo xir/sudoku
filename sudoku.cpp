@@ -35,7 +35,7 @@ class sudoku
 
     void countBox(int*,int);
 
-  //private:
+  private:
     int num_filled;
     bool solved;
     int side;
@@ -235,7 +235,6 @@ void sudoku::box_row(int x)
     tally[i]=0;
 
   countBox(tally,start_pos);
-  //print_array(tally);
 
   for (int i=start_pos;i<start_pos+(3*side);i+=side)
   {
@@ -246,7 +245,6 @@ void sudoku::box_row(int x)
     // count the row
     for (int j=i;j<i+3;++j)
       countTally(row_tally,j);
-    //print_array(row_tally);
 
     for (int j=0;j<side;++j)
     {
@@ -254,16 +252,11 @@ void sudoku::box_row(int x)
       {
         char c = '1'+j;
         int current_row = i/side;
-        //std::cout << j+1 << ": " << current_row << "\n";
         for (int k=1;k<3;++k)
         {
-          int base = (current_row/3)*3;
-          int row_t = (current_row+k)%3;
-          int row = base+row_t;
-          //std::cout << row << "\n";
+          int row = (current_row/3)*3+(current_row+k)%3;
           remove_from_row(row,c);
         }
-
       }
     }
   }
