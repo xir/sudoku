@@ -389,7 +389,6 @@ int main()
   for (int i=1;i<=NUM_PUZZLES;++i)
   {
     A.read();
-    A.print();
     A.pop_options();
     A.solve();
     if (A.isSolved())
