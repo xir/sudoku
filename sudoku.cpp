@@ -20,11 +20,17 @@ class sudoku
     void column_hidden(int);
     void box_direct(int);
     void box_hidden(int);
+    void box_row(int);
     void print();
     void read();
     void solve();
     void filled();
     bool isSolved();
+    void countTally(int*,int);
+    void remove_from_row(int,char);
+    void remove_from_col(int,char);
+
+    void countBox(int*,int);
 
   private:
     int num_filled;
@@ -68,7 +74,7 @@ void sudoku::pop_options()
     if (grid[i] == '0' || grid[i] == '.')
     {
       a='1';
-      for (int j=0;j<9;j++)
+      for (int j=0;j<side;j++)
       {
         options[i].insert(a);
         a++;
@@ -88,11 +94,13 @@ void sudoku::reduce_options()
 
 void sudoku::hidden()
 {
-  for (int i=0;i<9;++i)
+  for (int i=0;i<side;++i)
   {
     row_hidden(i);
     column_hidden(i);
     box_hidden(i);
+    //not working
+    //box_row(i);
   }
 }
 
@@ -126,19 +134,12 @@ void sudoku::column_hidden(int x)
   for (int i=0;i<side;++i)
     tally[i]=0;
   for (int i=start_pos;i<side*side;i+=side)
-  {
-    char a = '1';
-    for (int j=0;j<9;++j)
-    {
-      if (options[i].count(a)==1)
-        ++tally[j];
-      ++a;
-    }
-  }
+    countTally(tally,i);
+
   for (int i=start_pos;i<side*side;i+=side)
   {
     char a='1';
-    for (int j=0;j<9;++j)
+    for (int j=0;j<side;++j)
     {
       if (tally[j]==1 && options[i].count(a)==1)
       {
@@ -148,7 +149,6 @@ void sudoku::column_hidden(int x)
       ++a;
     }
   }
-
   delete[] tally;
 }
 
@@ -159,19 +159,12 @@ void sudoku::row_hidden(int x)
   for (int i=0;i<side;++i)
     tally[i]=0;
   for (int i=start_pos;i<start_pos+side;++i)
-  {
-    char a='1';
-    for (int j=0;j<9;++j)
-    {
-      if (options[i].count(a)==1)
-        ++tally[j];
-      ++a;
-    }
-  }
+    countTally(tally,i);
+
   for (int i=start_pos;i<start_pos+side;++i)
   {
     char a='1';
-    for (int j=0;j<9;++j)
+    for (int j=0;j<side;++j)
     {
       if (tally[j]==1 && options[i].count(a)==1)
       {
@@ -183,31 +176,21 @@ void sudoku::row_hidden(int x)
   }
   delete[] tally;
 }
+
 void sudoku::box_hidden(int x)
 {
   int start_pos=(x/3)*3*side+(x%3)*3;
   int * tally = new int[side];
   for (int i=0;i<side;++i)
     tally[i]=0;
+  countBox(tally,start_pos);
+
   for (int i=start_pos;i<start_pos+(3*side);i+=side)
   {
     for (int j=i;j<i+3;++j)
     {
       char a='1';
-      for (int k=0;k<9;++k)
-      {
-        if (options[j].count(a)==1)
-          ++tally[k];
-        ++a;
-      }
-    }
-  }
-  for (int i=start_pos;i<start_pos+(3*side);i+=side)
-  {
-    for (int j=i;j<i+3;++j)
-    {
-      char a='1';
-      for (int k=0;k<9;++k)
+      for (int k=0;k<side;++k)
       {
         if (tally[k]==1 && options[j].count(a)==1)
         {
@@ -221,7 +204,55 @@ void sudoku::box_hidden(int x)
   delete[] tally;
 }
 
-// hard coded for 9, oh well
+// puts the number of each possibility 1-9 in 0-8 of tally
+void sudoku::countBox(int * tally, int start_pos)
+{
+  for (int i=start_pos;i<start_pos+(3*side);i+=side)
+    for (int j=i;j<i+3;++j)
+      countTally(tally,j);
+}
+
+// examine the rows within a box
+// if total options of a number are the same in the box and in the row
+// then number can only occur in that row, therefore it can't occur in the
+// other two rows of that box, so remove them
+// edits options outside of its box
+void sudoku::box_row(int x)
+{
+  int start_pos=(x/3)*3*side+(x%3)*3;
+  int * tally = new int[side];
+  int * row_tally = new int[side];
+
+  for (int i=0;i<side;++i)
+    tally[i]=0;
+
+  countBox(tally,start_pos);
+
+  for (int i=start_pos;i<start_pos+(3*side);i+=side)
+  {
+    // zero it
+    for (int j=0;j<side;++j)
+      row_tally[j] = 0;
+
+    // count the row
+    for (int j=i;j<i+3;++j)
+      countTally(row_tally,j);
+
+    for (int j=0;j<side;++j)
+    {
+      if (row_tally[j]==tally[j])
+      {
+        char c = '1'+j;
+        int current_row = i/side;
+        for (int k=0;k<2;++k)
+          remove_from_row((current_row+k)%3,c);
+      }
+    }
+  }
+  delete[] tally;
+  delete[] row_tally;
+}
+
 void sudoku::box_direct(int x)
 {
   int start_row = (x/(3*side))*3*side;
@@ -274,6 +305,19 @@ void sudoku::print()
   std::cout << "\n";
 }
 
+void sudoku::countTally(int * tally, int x)
+{
+  char a='1';
+  for (int i=0;i<side;++i)
+  {
+    if (options[x].count(a)==1)
+    {
+      ++tally[i];
+    }
+    ++a;
+  }
+}
+
 void sudoku::solve()
 {
   filled();
@@ -293,6 +337,13 @@ void sudoku::solve()
       return;
     prev=num_filled;
   }
+}
+
+void sudoku::remove_from_row(int x, char c)
+{
+  int start_pos=x*side;
+  for (int i=start_pos;i<start_pos+side;++i)
+    options[i].erase(c);
 }
 
 int main()
