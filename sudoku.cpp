@@ -22,9 +22,7 @@ void sudoku::read()
   grid = new char[side*side];
   options = new std::set<char>[side*side];
   for (int i=0;i<side*side;++i)
-  {
     std::cin >> grid[i];
-  }
 }
 
 void sudoku::print()
@@ -40,7 +38,8 @@ void sudoku::print()
 
 void sudoku::solve()
 {
-  filled();
+  int num_filled = filled();
+  bool solved;
   if (num_filled != side*side)
     solved = false;
   else
@@ -53,7 +52,7 @@ void sudoku::solve()
     box();
     push_options();
 
-    filled();
+    num_filled = filled();
     if (prev == num_filled)
       return;
     prev=num_filled;
@@ -63,24 +62,65 @@ void sudoku::solve()
 bool sudoku::isCorrect()
 {
   for (int i=0;i<side;++i)
-  {
-  
-  }
+    if (!(checkRow(i) && checkCol(i) && checkBox(i)))
+      return false;
+  return true;
+}
+
+bool sudoku::checkRow(int n)
+{
+  int start_pos = n*side;
+  std::set<char> elements;
+  int filled_elems=0;
+  for (int i=start_pos;i<side;++i)
+    if (grid[i] >= '1' && grid[i] <= '9')
+    {
+      elements.insert(grid[i]);
+      ++filled_elems;
+    }
+  return filled_elems == elements.size();
+}
+
+bool sudoku::checkCol(int n)
+{
+  int start_pos = n;
+  std::set<char> elements;
+  int filled_elems=0;
+  for (int i=start_pos;i<side*side;i+=side)
+    if (grid[i] >= '1' && grid[i] <= '9')
+    {
+      elements.insert(grid[i]);
+      ++filled_elems;
+    }
+  return filled_elems == elements.size();
+}
+
+bool sudoku::checkBox(int n)
+{
+  int start_pos=(n/3)*3*side+(n%3)*3;
+  std::set<char> elements;
+  int filled_elems=0;
+  for (int i=start_pos;i<start_pos+(3*side);i+=side)
+    for (int j=i;j<3;++j)
+    {
+      elements.insert(grid[j]);
+      ++filled_elems;
+    }
+  return filled_elems == elements.size();
 }
 
 bool sudoku::isSolved()
 {
-  filled();
-  return num_filled == side*side;
+  bool isFilled = (filled() == side*side);
+  return (isFilled && isCorrect());
 }
 
 void sudoku::pop_options()
 {
-  char a;
   for (int i=0;i<side*side;++i)
-    if (grid[i] == '0' || grid[i] == '.')
+    if (grid[i] == '0')
     {
-      a='1';
+      char a='1';
       for (int j=0;j<side;j++)
       {
         options[i].insert(a);
@@ -358,12 +398,13 @@ void sudoku::print_array(int * array)
 
 }
 
-void sudoku::filled()
+int sudoku::filled()
 {
-  num_filled=0;
+  int num_filled=0;
   for (int i=0;i<side*side;++i)
     if (grid[i]!='0')
       ++num_filled;
+  return num_filled;
 }
 
 void sudoku::countTally(int * tally, int x)
@@ -372,9 +413,7 @@ void sudoku::countTally(int * tally, int x)
   for (int i=0;i<side;++i)
   {
     if (options[x].count(a)==1)
-    {
       ++tally[i];
-    }
     ++a;
   }
 }

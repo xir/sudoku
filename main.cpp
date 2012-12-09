@@ -33,6 +33,6 @@ int main(int argc, char * argv[])
       }
     }
   }
-  std::cout << count << "\n";
+  std::cout << "correct: "<< count << "/" << NUM_PUZZLES << "\n";
   return 0;
 }

@@ -9,6 +9,9 @@ class sudoku
     void solve();
 
     bool isCorrect();
+    bool checkRow(int);
+    bool checkCol(int);
+    bool checkBox(int);
     bool isSolved();
 
     void pop_options();
@@ -30,13 +33,11 @@ class sudoku
     void print_options(int);
     void print_array(int*);
 
-    void filled();
+    int filled();
     void countTally(int*,int);
     void countBox(int*,int);
 
   private:
-    int num_filled;
-    bool solved;
     int side;
     char * grid;
     std::set<char> * options;

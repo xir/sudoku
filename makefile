@@ -1,7 +1,7 @@
 all: sudoku
 	cat sudoku.txt | ./sudoku 50
 
-sudoku: sudoku.cpp
+sudoku: sudoku.cpp main.cpp
 	g++ -o sudoku main.cpp sudoku.cpp
 
 run:
@@ -12,4 +12,4 @@ test:
 	cat lol.txt | ./test 1
 
 clean:
-	rm *.dat test*
+	rm *.dat test* sudoku
