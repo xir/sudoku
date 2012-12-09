@@ -1,53 +1,8 @@
+#include"sudoku.h"
 #include<iostream>
 #include<set>
 
-const int SIDE = 9;
-const int NUM_PUZZLES = 50;
-
-class sudoku
-{
-  public:
-    sudoku(int);
-    ~sudoku();
-    void read();
-    void print();
-    void solve();
-
-    bool isCorrect();
-    bool isSolved();
-
-    void pop_options();
-    void push_options();
-    void reduce_options();
-    void hidden();
-    void row_direct(int);
-    void row_hidden(int);
-    void column_direct(int);
-    void column_hidden(int);
-    void box();
-    void box_direct(int);
-    void box_hidden(int);
-    void box_row(int);
-    void box_column(int);
-
-    void remove_from_row(int,char);
-    void remove_from_col(int,char);
-    void print_options(int);
-    void print_array(int*);
-
-    void filled();
-    void countTally(int*,int);
-    void countBox(int*,int);
-
-  private:
-    int num_filled;
-    bool solved;
-    int side;
-    char * grid;
-    std::set<char> * options;
-};
-
-sudoku::sudoku (int side)
+sudoku::sudoku(int side)
 {
   this->side=side;
   grid = new char[side*side];
@@ -105,8 +60,13 @@ void sudoku::solve()
   }
 }
 
-bool isCorrect()
-{}
+bool sudoku::isCorrect()
+{
+  for (int i=0;i<side;++i)
+  {
+  
+  }
+}
 
 bool sudoku::isSolved()
 {
@@ -425,28 +385,4 @@ void sudoku::countBox(int * tally, int start_pos)
   for (int i=start_pos;i<start_pos+(3*side);i+=side)
     for (int j=i;j<i+3;++j)
       countTally(tally,j);
-}
-
-int main()
-{
-  sudoku A (SIDE);
-  int count=0;
-  for (int i=1;i<=NUM_PUZZLES;++i)
-  {
-    A.read();
-    A.pop_options();
-    A.solve();
-    if (A.isSolved())
-      ++count;
-    else
-    {
-      //if(i==27)
-      {
-        std::cout << i << "\n";
-        A.print();
-      }
-    }
-  }
-  std::cout << count << "\n";
-  return 0;
 }
