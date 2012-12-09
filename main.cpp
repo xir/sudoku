@@ -1,10 +1,20 @@
 #include"sudoku.h"
 #include<iostream>
+#include<cstdlib>
 const int SIDE = 9;
-const int NUM_PUZZLES = 50;
 
-int main()
+int main(int argc, char * argv[])
 {
+  int NUM_PUZZLES=1;
+  if (argc>1)
+  {
+    int t = atoi(argv[1]);
+    if (t < 1 || t > 10000)
+      NUM_PUZZLES = 1;
+    else
+      NUM_PUZZLES = t;
+  }
+
   sudoku A (SIDE);
   int count=0;
   for (int i=1;i<=NUM_PUZZLES;++i)
